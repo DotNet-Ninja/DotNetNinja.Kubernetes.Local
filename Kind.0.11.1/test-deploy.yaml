@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ninja-web-pod
+  labels:
+    role: webserver
+spec:
+  containers:
+    - name: web
+      image: nginx
+      ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ninja-svc
+spec:
+  selector:
+    role: webserver
+  ports:
+    - protocol: TCP
+      port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ninja-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: ninja.k8s.local
+      http:
+        paths:
+          - backend:
+              service:
+                name: ninja-svc
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+            
